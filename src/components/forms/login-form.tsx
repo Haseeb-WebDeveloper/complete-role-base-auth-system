@@ -17,13 +17,15 @@ import { Input } from "@/components/ui/input";
 import { Icons } from "@/components/icons";
 import { loginSchema } from "@/types/auth.interface";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // Type inference for form values
 type LoginValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -34,8 +36,8 @@ export function LoginForm() {
 
   async function onSubmit(data: LoginValues) {
     setIsLoading(true);
+    setError(null);
     try {
-      console.log(data);
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
@@ -44,14 +46,19 @@ export function LoginForm() {
         body: JSON.stringify(data),
       });
       
-      if (!response.ok) {
-        throw new Error("Login failed");
+      const result = await response.json();
+
+      if (!result.success) {
+        setError(result.message);
+        return;
       }
 
       // Handle successful login
+      router.push("/"); // or wherever you want to redirect after login
+
     } catch (error) {
-      // Handle error
-      console.error(error);
+      setError("An error occurred during login");
+      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -64,6 +71,15 @@ export function LoginForm() {
         <p className="text-gray-500 dark:text-gray-400">
           Enter your credentials to sign in
         </p>
+      </div>
+      <div>
+      {error && (
+        <div className="bg-destructive/10 p-3 rounded-lg text-destructive text-center border border-destructive/70">
+          <p className="text-sm font-medium text-destructive text-center">
+            {error}
+          </p>
+        </div>
+        )}
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -116,4 +132,4 @@ export function LoginForm() {
       </Form>
     </div>
   );
-} 
+}

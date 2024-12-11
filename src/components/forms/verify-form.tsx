@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Icons } from "@/components/icons";
 import { useSearchParams } from "next/navigation";
 import { Mail } from "lucide-react";
-
+import { useRouter } from "next/navigation";
 const verifySchema = z.object({
   code: z
     .string()
@@ -27,6 +27,7 @@ const verifySchema = z.object({
 type VerifyValues = z.infer<typeof verifySchema>;
 
 export function VerifyForm() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
@@ -59,7 +60,10 @@ export function VerifyForm() {
         throw new Error(errorData.error || "Verification failed");
       }
 
-      window.location.href = "/login?verified=true";
+      if (response.ok) {
+        router.push("/login");
+      }
+
     } catch (error) {
       setError(error instanceof Error ? error.message : "Verification failed");
     } finally {
