@@ -26,7 +26,7 @@ const verifySchema = z.object({
 
 type VerifyValues = z.infer<typeof verifySchema>;
 
-export function VerifyForm() {
+export function VerifyForm({redirectUrl}: {redirectUrl: string}) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +61,7 @@ export function VerifyForm() {
       }
 
       if (response.ok) {
-        router.push("/login");
+        router.push(redirectUrl);
       }
 
     } catch (error) {
@@ -72,8 +72,9 @@ export function VerifyForm() {
   }
 
   return (
-    <div className="mx-auto max-w-[400px] w-full space-y-6">
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+    <div className="container flex h-screen w-screen flex-col items-center justify-center">
+      <div className="mx-auto max-w-[400px] w-full space-y-6">
+        <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
         <div className="flex flex-col space-y-1.5 p-6">
           <div className="flex items-center justify-center w-full mb-4">
             <div className="rounded-full bg-primary/10 p-3">
@@ -141,6 +142,7 @@ export function VerifyForm() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 } 

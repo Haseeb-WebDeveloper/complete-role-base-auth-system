@@ -18,6 +18,8 @@ import { Icons } from "@/components/icons";
 import { loginSchema } from "@/types/auth.interface";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { PasswordInput } from "@/components/ui/password-input";
+import { AlertCircle } from "lucide-react";
 
 // Type inference for form values
 type LoginValues = z.infer<typeof loginSchema>;
@@ -65,71 +67,108 @@ export function LoginForm() {
   }
 
   return (
-    <div className="mx-auto max-w-[400px] w-full space-y-6 bg-foreground/5 p-8 rounded-lg">
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold">Welcome back</h1>
-        <p className="text-gray-500 dark:text-gray-400">
-          Enter your credentials to sign in
-        </p>
-      </div>
-      <div>
-      {error && (
-        <div className="bg-destructive/10 p-3 rounded-lg text-destructive text-center border border-destructive/70">
-          <p className="text-sm font-medium text-destructive text-center">
-            {error}
-          </p>
-        </div>
-        )}
-      </div>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="john@example.com" type="email" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input placeholder="********" type="password" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="flex flex-col space-y-4">
-            <Button className="w-full" type="submit" disabled={isLoading}>
-              {isLoading && (
-                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Sign in
-            </Button>
-            <div className="text-sm text-center space-x-1">
-              <span className="text-muted-foreground">
-                Don't have an account?
+    <div className="mx-auto max-w-[400px] w-full space-y-6">
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div className="p-6 space-y-6">
+          <div className="space-y-2 text-center">
+            <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
+            <p className="text-sm text-muted-foreground">
+              Enter your credentials to sign in
+            </p>
+          </div>
+
+          {error && (
+            <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              <p>{error}</p>
+            </div>
+          )}
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter email" 
+                        className=""
+                        type="email" 
+                        {...field}
+                        autoComplete="email"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <PasswordInput 
+                        placeholder="Enter password" 
+                        {...field}
+                        autoComplete="current-password"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button 
+                className="w-full" 
+                type="submit" 
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign in"
+                )}
+              </Button>
+            </form>
+          </Form>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with
               </span>
+            </div>
+          </div>
+
+          <div className="text-sm text-center space-y-1">
+            <p className="text-muted-foreground">
+              Don't have an account?{" "}
               <Link 
                 href="/signup" 
-                className="text-primary underline-offset-4 hover:underline"
+                className="text-primary hover:underline underline-offset-4"
               >
                 Sign up
               </Link>
-            </div>
+            </p>
+            <Link 
+              href="/forget-password" 
+              className="text-primary hover:underline underline-offset-4"
+            >
+              Forgot password?
+            </Link>
           </div>
-        </form>
-      </Form>
+        </div>
+      </div>
     </div>
   );
 }

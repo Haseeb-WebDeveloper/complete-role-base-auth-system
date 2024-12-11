@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
         if (!user.isVerified) {
             return NextResponse.json({ 
                 success: false, 
-                message: "Please verify your email first" 
+                message: "Please verify your email before logging in" 
             }, { status: 400 });
         }
 
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
         console.error("Login error:", error);
         return NextResponse.json({ 
             success: false, 
-            message: "An error occurred during login" 
+            message: "Something went wrong. Please try again later." 
         }, { status: 500 });
     }
 }

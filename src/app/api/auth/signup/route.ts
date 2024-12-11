@@ -2,8 +2,9 @@ import UserModel from "@/database/models/user.model";
 import { hashPassword } from "@/lib/bscript";
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/database/dbConnect";
-import { generateVerificationCode } from "@/lib/varification-code";
+import { generateOTP } from "@/lib/generate-otp";
 import { sendVerificationEmail } from "@/lib/send-mail";
+import { verifyMailMessage } from "@/template";
 
 export async function POST(req: NextRequest) {
     try {
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest) {
         if (!name || !email || !password) {
             return NextResponse.json({ 
                 success: false, 
-                error: 'Missing required fields' 
+                message: 'All fields are required' 
             }, { status: 400 });
         }
 
@@ -22,12 +23,12 @@ export async function POST(req: NextRequest) {
         if (existingUser) {
             return NextResponse.json({ 
                 success: false, 
-                error: "User already exists" 
+                message: "Email already registered. Please use a different email or login" 
             }, { status: 400 });
         }
         
         const hashedPassword = await hashPassword(password);
-        const verificationCode = generateVerificationCode();
+        const verificationCode = generateOTP();
         
         // Create user first
         const user = await UserModel.create({ 
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
 
         try {
             // Attempt to send verification email
-            await sendVerificationEmail(email, verificationCode);
+            await sendVerificationEmail(email, verifyMailMessage(verificationCode));
         } catch (emailError) {
             // If email fails, delete the user and throw error
             await UserModel.deleteOne({ _id: user._id });
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest) {
         console.error('Signup error:', error);
         return NextResponse.json({ 
             success: false, 
-            error: "Error creating user"
+            message: "Something went wrong. Please try again later."
         }, { status: 500 });
     }
 }

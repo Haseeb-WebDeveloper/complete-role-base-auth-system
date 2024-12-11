@@ -18,12 +18,16 @@ import { Icons } from "@/components/icons";
 import { signUpSchema } from "@/types/auth.interface";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { AlertCircle } from "lucide-react";
+import { PasswordInput } from "../ui/password-input";
+import { PasswordStrength } from "@/components/ui/password-strength";
 
 // this is the type of the values that will be used in the form
 type SignUpValues = z.infer<typeof signUpSchema>;
 
 export function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const form = useForm<SignUpValues>({
@@ -37,6 +41,7 @@ export function SignUpForm() {
 
   async function onSubmit(data: SignUpValues) {
     setIsLoading(true);
+    setError(null);
     try {
       const response = await fetch("/api/auth/signup", {
         method: "POST",
@@ -46,15 +51,17 @@ export function SignUpForm() {
         body: JSON.stringify(data),
       });
       
-      if (!response.ok) {
-        throw new Error("Signup failed");
+      const result = await response.json();
+
+      if (!result.success) {
+        setError(result.message);
+        return;
       }
 
-      const result = await response.json();
-      
-      // Update the redirect URL
+      // Redirect on success. window.location.href is a 
       window.location.href = `/verify-email?email=${encodeURIComponent(data.email)}`;
     } catch (error) {
+      setError("Something went wrong. Please try again later.");
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -62,73 +69,103 @@ export function SignUpForm() {
   }
 
   return (
-    <div className="mx-auto max-w-[400px] w-full space-y-6 bg-foreground/5 p-8 rounded-lg">
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold">Create an account</h1>
-        <p className="text-gray-500 dark:text-gray-400">
-          Enter your information to create your account
-        </p>
-      </div>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control} // this is used to control the form state and the form methods
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="John Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="john@example.com" type="email" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input placeholder="********" type="password" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button className="w-full" type="submit" disabled={isLoading}>
-            {isLoading && (
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            Sign up
-          </Button>
-          <div className="text-sm text-center space-x-1">
-              <span className="text-muted-foreground">
-                Already have an account?
-              </span>
+    <div className="mx-auto max-w-[400px] w-full space-y-6">
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div className="p-6 space-y-6">
+          <div className="space-y-2 text-center">
+            <h1 className="text-2xl font-bold tracking-tight">Create an account</h1>
+            <p className="text-sm text-muted-foreground">
+              Enter your information to create your account
+            </p>
+          </div>
+
+          {error && (
+            <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              <p>{error}</p>
+            </div>
+          )}
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="John Doe" 
+                        {...field}
+                        autoComplete="name"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="john@example.com" type="email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <PasswordInput 
+                        placeholder="Enter password" 
+                        {...field}
+                        autoComplete="new-password"
+                      />
+                    </FormControl>
+                    <PasswordStrength password={field.value} />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button 
+                className="w-full" 
+                type="submit" 
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                    Creating account...
+                  </>
+                ) : (
+                  "Create account"
+                )}
+              </Button>
+            </form>
+          </Form>
+
+          <div className="text-sm text-center">
+            <p className="text-muted-foreground">
+              Already have an account?{" "}
               <Link 
                 href="/login" 
-                className="text-primary underline-offset-4 hover:underline"
+                className="text-primary hover:underline underline-offset-4"
               >
-                Login
+                Sign in
               </Link>
-            </div>
-        </form>
-      </Form>
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
