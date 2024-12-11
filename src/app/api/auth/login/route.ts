@@ -2,10 +2,12 @@ import UserModel from "@/database/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
 import { comparePassword } from "@/lib/bscript";
 import dbConnect from "@/database/dbConnect";
+import { generateRefreshToken, generateToken } from "@/lib/jwt";
 
 export async function POST(req: NextRequest) {
     try {
         const { email, password } = await req.json();
+        console.log("Login attempt for:", email);
 
         if (!email || !password) {
             return NextResponse.json({ 
@@ -14,10 +16,9 @@ export async function POST(req: NextRequest) {
             }, { status: 400 });
         }
 
-        // Connect to database
         await dbConnect();
-
         const user = await UserModel.findOne({ email });
+        console.log("User found:", user ? "Yes" : "No");
 
         if (!user) {
             return NextResponse.json({ 
@@ -44,26 +45,44 @@ export async function POST(req: NextRequest) {
             }, { status: 400 });
         }
 
-        // Create user response without sensitive data
-        const userResponse = {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            status: user.status
-        };
+        const accessToken = generateToken({ userId: user._id }, '1h');
+        const refreshToken = generateRefreshToken({ userId: user._id });
+        console.log("Tokens generated:", { accessToken: !!accessToken, refreshToken: !!refreshToken });
 
-        return NextResponse.json({ 
-            success: true, 
-            message: "Login successful",
-            user: userResponse
+        // Create response with cookies
+        const response = NextResponse.json({ 
+            success: true,
+            message: 'Login successful',
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
         }, { status: 200 });
 
+        // Set cookies with proper options
+        response.cookies.set('accessToken', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 3600
+        });
+        
+        response.cookies.set('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 7 * 24 * 3600
+        });
+
+        console.log("Response cookies set:", response.cookies);
+        return response;
+
     } catch (error) {
-        console.error("Login error:", error);
-        return NextResponse.json({ 
-            success: false, 
-            message: "Something went wrong. Please try again later." 
-        }, { status: 500 });
+        console.error('Login error:', error);
+        return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });
     }
 }
