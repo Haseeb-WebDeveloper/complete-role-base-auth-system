@@ -1,36 +1,136 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Role-Based Authentication System with Next.js
 
-## Getting Started
+This repository contains a robust, scalable, and reusable role-based authentication system built with **Next.js** and **MongoDB**. Designed with flexibility in mind, this system supports various roles and provides comprehensive account management features while adhering to security best practices.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Features
+
+### Authentication
+- User registration (signup) with email verification.
+- Login with secure password hashing (using bcrypt).
+- Token-based authentication with **JWT**.
+- Forgot and reset password functionality.
+
+### Role-Based Access Control (RBAC)
+- Three predefined roles: `User`, `Moderator`, and `Admin`.
+- Middleware for role-based access to protected routes.
+
+### Account Management
+- Edit account details (username, email, password, etc.).
+- Full email verification workflow.
+- Active and audit logs for tracking account activities.
+
+### Security
+- Password hashing and secure token storage.
+- HTTP-only cookies for access and refresh token management.
+- Two-step verification using email (optional for MVP).
+- IP and device whitelisting (optional).
+
+### Reusability
+- Clean and modular codebase for easy integration into any application.
+- Separate folders for models, utilities, types, and interfaces.
+- Typescript for strong typing and scalability.
+
+---
+
+## Technologies Used
+- **Next.js**: Framework for server-side rendering and API routing.
+- **MongoDB**: NoSQL database for scalable and flexible data storage.
+- **TypeScript**: Ensures type safety and better code maintainability.
+- **bcryptjs**: For secure password hashing.
+- **jsonwebtoken (JWT)**: For token-based authentication.
+- **Nodemailer**: For sending verification and reset emails.
+- **Cookie Parser**: To manage HTTP-only cookies securely.
+
+---
+
+## Folder Structure
+
+```
+/auth-system
+│
+├── /src
+│   ├── /app
+│   │   ├── /api/auth      # API routes for authentication
+│   │   │   ├── signup/route.ts
+│   │   │   ├── login/route.ts
+│   │   │   ├── verify-email/route.ts
+│   │   │   ├── forgot-password/route.ts
+│   │   │   └── reset-password/route.ts
+│   │   ├── layout.tsx     # Global layout file
+│   │   └── page.tsx       # Entry page (e.g., for login or home)
+│   │
+│   ├── /lib
+│   │   ├── dbConnect.ts   # MongoDB connection helper
+│   │   ├── auth.ts        # Authentication utilities (JWT, bcrypt)
+│   │   └── roleMiddleware.ts  # Middleware for role-based access
+│   │
+│   ├── /models
+│   │   └── User.ts        # User schema for MongoDB
+│   │
+│   ├── /types
+│   │   ├── user.ts        # Type definitions for user objects
+│   │   └── index.ts       # Shared type definitions
+│   │
+│   ├── /interfaces
+│   │   ├── user.interface.ts # Interfaces for user schema
+│   │   └── auth.interface.ts # Interfaces for authentication flows
+│   │
+│   ├── /utils
+│   │   ├── sendEmail.ts   # Helper to send emails
+│   │   ├── generateToken.ts   # Helper for JWT token generation
+│   │   └── validateInput.ts   # Input validation functions
+│   │
+│   └── /styles
+│       └── globals.css    # Global styles
+│
+├── .env                   # Environment variables
+├── .eslintrc.js           # ESLint configuration
+├── .prettierrc            # Prettier configuration
+├── next.config.js         # Next.js configuration
+└── package.json           # Project dependencies
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Installation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/auth-system.git
+   cd auth-system
+   ```
 
-## Learn More
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+3. Set up the `.env` file with your environment variables:
+   ```
+   MONGO_URI=your_mongodb_connection_string
+   JWT_SECRET=your_jwt_secret
+   EMAIL_USER=your_email_user
+   EMAIL_PASS=your_email_password
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contributing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Contributions, issues, and feature requests are welcome! Feel free to fork the repository and submit a pull request. 
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+
