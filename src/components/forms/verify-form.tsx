@@ -26,12 +26,16 @@ const verifySchema = z.object({
 
 type VerifyValues = z.infer<typeof verifySchema>;
 
-export function VerifyForm({redirectUrl}: {redirectUrl: string}) {
+export function VerifyForm({ redirectUrl, email, mode = "signup" }: {
+  redirectUrl: string;
+  email?: string;
+  mode?: "signup" | "reset"
+}) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
-  const email = searchParams.get("email");
+  const emailParam = email || searchParams.get("email");
 
   const form = useForm<VerifyValues>({
     resolver: zodResolver(verifySchema),
@@ -40,41 +44,53 @@ export function VerifyForm({redirectUrl}: {redirectUrl: string}) {
     },
   });
 
+  const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (...event: any[]) => void) => {
+    const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
+    onChange(value);
+  };
+
   async function onSubmit(data: VerifyValues) {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/auth/verify-email", {
+      const endpoint = mode === "reset" ? "/api/auth/verify-reset-code" : "/api/auth/verify-email";
+      
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
+          email: emailParam,
           code: data.code,
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Verification failed");
+      const result = await response.json();
+
+      if (!result.success) {
+        setError(result.message);
+        return;
       }
 
-      if (response.ok) {
+      // For reset password flow, include the verification token
+      if (mode === "reset" && result.token) {
+        router.push(`/reset-password?email=${emailParam}&token=${result.token}`);
+      } else {
         router.push(redirectUrl);
       }
 
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Verification failed");
+      setError("Verification failed. Please try again.");
+      console.error("Verification error:", error);
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <div className="mx-auto max-w-[400px] w-full space-y-6">
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+    <div className="mx-auto max-w-[400px] w-full space-y-6">
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
         <div className="flex flex-col space-y-1.5 p-6">
           <div className="flex items-center justify-center w-full mb-4">
             <div className="rounded-full bg-primary/10 p-3">
@@ -85,7 +101,7 @@ export function VerifyForm({redirectUrl}: {redirectUrl: string}) {
           <p className="text-sm text-center text-muted-foreground px-4">
             We've sent a verification code to
             <span className="block font-medium text-foreground mt-1">
-              {email || "your email"}
+              {emailParam || "your email"}
             </span>
           </p>
         </div>
@@ -101,8 +117,12 @@ export function VerifyForm({redirectUrl}: {redirectUrl: string}) {
                       <Input
                         placeholder="• • • • • •"
                         {...field}
+                        onChange={(e) => handleOtpChange(e, field.onChange)}
                         className="text-center text-lg tracking-[0.75em] font-mono"
                         maxLength={6}
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        autoComplete="one-time-code"
                       />
                     </FormControl>
                     <FormMessage />
@@ -114,7 +134,11 @@ export function VerifyForm({redirectUrl}: {redirectUrl: string}) {
                   {error}
                 </p>
               )}
-              <Button className="w-full" type="submit" disabled={isLoading}>
+              <Button 
+                className="w-full" 
+                type="submit" 
+                disabled={isLoading || form.watch("code")?.length !== 6}
+              >
                 {isLoading && (
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                 )}
@@ -142,7 +166,6 @@ export function VerifyForm({redirectUrl}: {redirectUrl: string}) {
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 } 
