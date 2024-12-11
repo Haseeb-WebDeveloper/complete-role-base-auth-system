@@ -98,7 +98,7 @@ This repository contains a robust, scalable, and reusable role-based authenticat
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/auth-system.git
+   git clone https://github.com/Haseeb-WebDeveloper/complete-role-base-auth-system.git
    cd auth-system
    ```
 
