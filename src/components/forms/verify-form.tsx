@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -55,25 +56,19 @@ export function VerifyForm({ redirectUrl, email, mode = "signup" }: {
     try {
       const endpoint = mode === "reset" ? "/api/auth/verify-reset-code" : "/api/auth/verify-email";
       
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: emailParam,
-          code: data.code,
-        }),
-      });
+      const response = await axios.post(endpoint, {
+        email: emailParam,
+        code: data.code,
+      }); 
 
-      const result = await response.json();
+      const result = response.data;
 
       if (!result.success) {
         setError(result.message);
         return;
       }
 
-      // For reset password flow, include the verification token
+      // if the mode is reset, then we need to include the verification token in the redirect url
       if (mode === "reset" && result.token) {
         router.push(`/reset-password?email=${emailParam}&token=${result.token}`);
       } else {

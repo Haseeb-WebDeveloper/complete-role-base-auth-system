@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -36,23 +37,18 @@ export function ForgetPasswordForm() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/auth/forget-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const response = await axios.post("/api/auth/forget-password", data);
       
-      const result = await response.json();
+      const result = response.data;
 
       if (!result.success) {
         setError(result.message);
         return;
       }
 
-      if (response.ok) {
-        // redirect to verify email page with reset mode
-        router.push(`/verify-email?email=${data.email}&mode=reset`);
-      }
+      // redirect to verify email page with reset mode
+      router.push(`/verify-email?email=${data.email}&mode=reset`);
+
 
     } catch (error) {
       setError("Something went wrong. Please try again later.");

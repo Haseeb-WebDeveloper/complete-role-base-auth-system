@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -44,19 +45,13 @@ export function ResetPasswordForm({ email, token }: ResetPasswordFormProps) {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/auth/reset-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-          token,
-        }),
+      const response = await axios.post("/api/auth/reset-password", {
+        email: data.email,
+        password: data.password,
+        token,
       });
-
-      const result = await response.json();
+      
+      const result = response.data;
 
       if (!result.success) {
         setError(result.message);

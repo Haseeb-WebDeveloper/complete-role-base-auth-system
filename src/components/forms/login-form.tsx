@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -40,15 +41,8 @@ export function LoginForm() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      
-      const result = await response.json();
+      const response = await axios.post("/api/auth/login", data);
+      const result = response.data;
 
       if (!result.success) {
         setError(result.message);

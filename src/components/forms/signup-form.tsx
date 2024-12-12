@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -31,7 +32,7 @@ export function SignUpForm() {
   const router = useRouter();
 
   const form = useForm<SignUpValues>({
-    resolver: zodResolver(signUpSchema),
+    resolver: zodResolver(signUpSchema), // this is the resolver that will be used to validate the form. Resolves is a function that returns a promise that resolves(means it will return a validation result like true or false based on the schema) to a validation result.
     defaultValues: {
       name: "",
       email: "",
@@ -43,23 +44,18 @@ export function SignUpForm() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      const response = await axios.post("/api/auth/signup", data);
       
-      const result = await response.json();
+      const result = response.data;
 
       if (!result.success) {
         setError(result.message);
         return;
       }
 
-      // Redirect on success. window.location.href is a 
-      window.location.href = `/verify-email?email=${encodeURIComponent(data.email)}`;
+      // Redirect on success. 
+      router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
+
     } catch (error) {
       setError("Something went wrong. Please try again later.");
       console.error(error);
@@ -86,8 +82,8 @@ export function SignUpForm() {
             </div>
           )}
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <Form {...form}> 
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4"> 
               <FormField
                 control={form.control}
                 name="name"
@@ -112,7 +108,7 @@ export function SignUpForm() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="john@example.com" type="email" {...field} />
+                      <Input placeholder="Enter email" type="email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -143,7 +139,7 @@ export function SignUpForm() {
               >
                 {isLoading ? (
                   <>
-                    <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                    <Icons.spinner className="mr-2 h-4 w-4 animate-pulse" />
                     Creating account...
                   </>
                 ) : (

@@ -6,19 +6,18 @@ export default async function VerifyEmailPage({
 }: {
   searchParams: { email?: string; mode?: string };
 }) {
-  const email = await searchParams.email;
-  if (!email) {
+  if (!searchParams.email) {
     redirect("/signup");
   }
 
-  const mode = (await searchParams.mode) === "reset" ? "reset" : "signup";
+  const mode = searchParams.mode === "reset" ? "reset" : "signup";
   const redirectUrl = mode === "reset" ? "/reset-password" : "/login";
 
   return (
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
       <VerifyForm 
         redirectUrl={redirectUrl} 
-        email={email} 
+        email={searchParams.email} 
         mode={mode} 
       />
     </div>
