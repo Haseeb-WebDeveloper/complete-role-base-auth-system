@@ -3,7 +3,6 @@ import { GeistSans } from 'geist/font/sans';
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/context/auth-context";
-import { Navbar } from "@/components/layout/navbar";
 
 
 
@@ -27,7 +26,6 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <Navbar />
             {children}
           </AuthProvider>
         </ThemeProvider>

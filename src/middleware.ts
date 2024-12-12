@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyToken } from "@/lib/jwt";
 
+// this is the middleware that will be used to check if the user is logged in. This is the first middleware that will be called when the user visits the website. In nextjs, the middleware is called before the page is rendered.
 export async function middleware(request: NextRequest) {
     console.log("Middleware called for path:", request.nextUrl.pathname);
     
     // Paths that don't require authentication
-    const publicPaths = ['/login', '/signup', '/forget-password', '/verify-email'];
+    const publicPaths = [ '/', '/login', '/signup', '/forget-password', '/verify-email'];
+    // this is the function that will be used to check if the path is public. It will take the public paths and the request path and check if the request path starts with any of the public paths.
     const isPublicPath = publicPaths.some(path => 
         request.nextUrl.pathname.startsWith(path)
     );

@@ -202,7 +202,15 @@ If you find this project helpful, please give it a ⭐️ on GitHub!
 
 ## Authors
 
-- Your Name - Initial work - [GitHub Profile](https://github.com/Haseeb-WebDeveloper)
+- Haseeb AHMED Raza Khan - Initial work - [GitHub Profile](https://github.com/Haseeb-WebDeveloper)
+
+## Contact
+
+- Email: web.dev.haseeb@gmail.com
+- Portfolio: [Haseeb Ahmed Raza Khan](https://haseebkhan.online/)
+- LinkedIn: [Haseeb Ahmed Raza Khan](https://www.linkedin.com/in/haseeb-ahmed-raza-khan?originalSubdomain=pk)
+- Instagram: [Haseeb Ahmed Raza Khan](https://www.instagram.com/haseeb.ahmed.raza.khan/)
+- Upwork: [Haseeb Ahmed Raza Khan](https://www.upwork.com/freelancers/~01b8c927b6fa311757)
 
 ## Acknowledgments
 
