@@ -2,6 +2,7 @@ import UserModel from "@/database/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/database/dbConnect";
 import jwt from 'jsonwebtoken';
+import { generateResetToken } from "@/lib/jwt";
 
 export async function POST(req: NextRequest) {
     try {
@@ -33,11 +34,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Generate a reset token
-        const resetToken = jwt.sign(
-            { userId: user._id },
-            process.env.JWT_SECRET!,
-            { expiresIn: '15m' }
-        );
+        const resetToken = generateResetToken({ userId: user._id });
 
         // Clear the verification code
         user.verificationCode = "";

@@ -43,8 +43,8 @@ export async function POST(req: NextRequest) {
             await sendVerificationEmail(email, verifyMailMessage(verificationCode));
         } catch (emailError) {
             // If email fails, delete the user and throw error
-            await UserModel.deleteOne({ _id: user._id });
-            console.error('Email sending error:', emailError);
+            await UserModel.deleteOne({ email });
+            console.error('Email sending error in signup may be email limit reached:', emailError);
             return NextResponse.json({ 
                 success: false, 
                 error: "Failed to send verification email. Please try again." 

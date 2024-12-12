@@ -13,7 +13,7 @@ import { User, LogOut, Menu } from "lucide-react";
 import { useState } from "react";
 
 export function Navbar() {
-    const { user, logout, isLoading } = useAuth();
+    const { user, logout, isLoading } = useAuth(); // this is the context that will be used to get the user and the logout function
     const [isOpen, setIsOpen] = useState(false);
 
     return (

@@ -1,3 +1,9 @@
+// Explanation:
+// This is the context that will be used to get the user and the logout function
+// It will be used in the navbar component to display the user's name and the logout button
+// It will also be used in the login and register pages to check if the user is logged in
+// It will be used in the dashboard page to check if the user is logged in  
+
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
@@ -25,6 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         checkAuth();
     }, []);
 
+    // this is the function that will be used to check if the user is logged in
     const checkAuth = async () => {
         try {
             console.log("Checking authentication...");
@@ -49,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    // this is the function that will be used to logout the user
     const logout = async () => {
         try {
             console.log("Logging out...");

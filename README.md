@@ -1,136 +1,212 @@
-# Role-Based Authentication System with Next.js
+# Next.js Authentication System
 
-This repository contains a robust, scalable, and reusable role-based authentication system built with **Next.js** and **MongoDB**. Designed with flexibility in mind, this system supports various roles and provides comprehensive account management features while adhering to security best practices.
+A comprehensive, production-ready authentication system built with Next.js 14, TypeScript, MongoDB, and JWT. This system provides a complete authentication flow with email verification, password reset, and role-based access control.
 
----
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 ## Features
 
 ### Authentication
-- User registration (signup) with email verification.
-- Login with secure password hashing (using bcrypt).
-- Token-based authentication with **JWT**.
-- Forgot and reset password functionality.
-
-### Role-Based Access Control (RBAC)
-- Three predefined roles: `User`, `Moderator`, and `Admin`.
-- Middleware for role-based access to protected routes.
-
-### Account Management
-- Edit account details (username, email, password, etc.).
-- Full email verification workflow.
-- Active and audit logs for tracking account activities.
+- 🔐 Secure user registration with email verification
+- 📧 Email-based password reset flow
+- 🔑 JWT-based authentication with access and refresh tokens
+- 🛡️ Role-based access control (User, Admin)
+- 🔒 Protected routes and API endpoints
+- 🎨 Modern, responsive UI with dark mode support
 
 ### Security
-- Password hashing and secure token storage.
-- HTTP-only cookies for access and refresh token management.
-- Two-step verification using email (optional for MVP).
-- IP and device whitelisting (optional).
+- 🔒 HTTP-only cookies for token storage
+- 🔑 Password hashing with bcrypt
+- 🚫 Rate limiting (configurable)
+- 🛡️ CSRF protection
+- ✉️ Secure email verification system
+- 🔄 Automatic token refresh
 
-### Reusability
-- Clean and modular codebase for easy integration into any application.
-- Separate folders for models, utilities, types, and interfaces.
-- Typescript for strong typing and scalability.
+### User Experience
+- 📱 Responsive design
+- 🌓 Dark/Light mode
+- 💪 Password strength indicator
+- ⚡ Real-time form validation
+- 🎯 Clear error messages
+- 🔄 Loading states
 
----
+## Tech Stack
 
-## Technologies Used
-- **Next.js**: Framework for server-side rendering and API routing.
-- **MongoDB**: NoSQL database for scalable and flexible data storage.
-- **TypeScript**: Ensures type safety and better code maintainability.
-- **bcryptjs**: For secure password hashing.
-- **jsonwebtoken (JWT)**: For token-based authentication.
-- **Nodemailer**: For sending verification and reset emails.
-- **Cookie Parser**: To manage HTTP-only cookies securely.
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Database**: MongoDB
+- **Authentication**: JWT (jsonwebtoken)
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui
+- **Form Handling**: React Hook Form
+- **Validation**: Zod
+- **Email**: Brevo (formerly Sendinblue)
 
----
+## Quick Start
 
-## Folder Structure
+### Prerequisites
+- Node.js 18+ 
+- MongoDB database
+- Brevo account for email service
 
-```
-/auth-system
-│
-├── /src
-│   ├── /app
-│   │   ├── /api/auth      # API routes for authentication
-│   │   │   ├── signup/route.ts
-│   │   │   ├── login/route.ts
-│   │   │   ├── verify-email/route.ts
-│   │   │   ├── forgot-password/route.ts
-│   │   │   └── reset-password/route.ts
-│   │   ├── layout.tsx     # Global layout file
-│   │   └── page.tsx       # Entry page (e.g., for login or home)
-│   │
-│   ├── /lib
-│   │   ├── dbConnect.ts   # MongoDB connection helper
-│   │   ├── auth.ts        # Authentication utilities (JWT, bcrypt)
-│   │   └── roleMiddleware.ts  # Middleware for role-based access
-│   │
-│   ├── /models
-│   │   └── User.ts        # User schema for MongoDB
-│   │
-│   ├── /types
-│   │   ├── user.ts        # Type definitions for user objects
-│   │   └── index.ts       # Shared type definitions
-│   │
-│   ├── /interfaces
-│   │   ├── user.interface.ts # Interfaces for user schema
-│   │   └── auth.interface.ts # Interfaces for authentication flows
-│   │
-│   ├── /utils
-│   │   ├── sendEmail.ts   # Helper to send emails
-│   │   ├── generateToken.ts   # Helper for JWT token generation
-│   │   └── validateInput.ts   # Input validation functions
-│   │
-│   └── /styles
-│       └── globals.css    # Global styles
-│
-├── .env                   # Environment variables
-├── .eslintrc.js           # ESLint configuration
-├── .prettierrc            # Prettier configuration
-├── next.config.js         # Next.js configuration
-└── package.json           # Project dependencies
-```
-
----
-
-## Installation
+### Installation
 
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/Haseeb-WebDeveloper/complete-role-base-auth-system.git
-   cd auth-system
-   ```
+```bash
+git clone https://github.com/Haseeb-WebDeveloper/complete-role-base-auth-system
+cd complete-role-base-auth-system
+```
 
 2. Install dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+# or
+yarn install
+```
 
-3. Set up the `.env` file with your environment variables:
-   ```
-   MONGO_URI=your_mongodb_connection_string
-   JWT_SECRET=your_jwt_secret
-   EMAIL_USER=your_email_user
-   EMAIL_PASS=your_email_password
-   ```
+3. Set up environment variables:
+```env
+# Create a .env file with the following variables
+MONGODB_URI=your_mongodb_connection_string
+SMTP_USER=your_brevo_smtp_user
+SMTP_PASS=your_brevo_smtp_password
+SENDER_EMAIL=your_verified_sender_email
+JWT_ACCESS_TOKEN_SECRET=your_jwt_access_token_secret
+JWT_REFRESH_TOKEN_SECRET=your_jwt_refresh_token_secret
+JWT_RESET_TOKEN_SECRET=your_jwt_reset_token_secret
+```
 
 4. Run the development server:
-   ```bash
-   npm run dev
-   ```
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-5. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Authentication Flow
 
----
+### 1. Signup Flow
+```mermaid
+graph LR
+    A[Signup Form] --> B[Validate Input]
+    B --> C[Create User]
+    C --> D[Send Verification Email]
+    D --> E[Verify Email]
+    E --> F[Login]
+```
+
+### 2. Password Reset Flow
+```mermaid
+graph LR
+    A[Forget Password] --> B[Send Reset Code]
+    B --> C[Verify Code]
+    C --> D[Set New Password]
+    D --> E[Login]
+```
+
+### 3. Protected Routes
+- Middleware checks for valid JWT
+- Automatic token refresh
+- Role-based access control
+
+## API Routes
+
+### Authentication Endpoints
+
+```typescript
+POST /api/auth/signup
+POST /api/auth/login
+POST /api/auth/logout
+POST /api/auth/refresh
+GET  /api/auth/me
+POST /api/auth/forget-password
+POST /api/auth/verify-email
+POST /api/auth/reset-password
+```
+
+### Request/Response Examples
+
+#### Signup
+```typescript
+// Request
+POST /api/auth/signup
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "SecurePass123!"
+}
+
+// Response
+{
+  "success": true,
+  "message": "User created successfully",
+  "user": {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "user"
+  }
+}
+```
+
+## Security Considerations
+
+1. **Password Security**:
+   - Minimum 8 characters
+   - Must contain uppercase, lowercase, and numbers
+   - Hashed using bcrypt
+
+2. **JWT Configuration**:
+   - Access Token: 1 hour expiry
+   - Refresh Token: 7 days expiry
+   - Reset Token: 15 minutes expiry
+
+3. **Cookie Security**:
+   - HTTP-only cookies
+   - Secure flag in production
+   - SameSite policy
+
+## Customization
+
+### Adding New Roles
+```typescript
+// Update user.model.ts
+const userSchema = new mongoose.Schema({
+  role: {
+    type: String,
+    enum: ["user", "admin", "custom_role"],
+    default: "user"
+  }
+});
+```
+
+### Modifying Email Templates
+```typescript
+// Update src/template/index.ts
+export const verifyMailMessage = (code: string) => `
+  // Your custom HTML template
+`;
+```
 
 ## Contributing
 
-Contributions, issues, and feature requests are welcome! Feel free to fork the repository and submit a pull request. 
-
----
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+If you find this project helpful, please give it a ⭐️ on GitHub!
+
+## Authors
+
+- Your Name - Initial work - [GitHub Profile](https://github.com/Haseeb-WebDeveloper)
+
+## Acknowledgments
+
+- [Next.js Team](https://nextjs.org)
+- [Shadcn UI](https://ui.shadcn.com)
+- [MongoDB](https://www.mongodb.com)
 

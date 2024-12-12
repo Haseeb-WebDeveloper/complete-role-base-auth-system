@@ -45,6 +45,7 @@ export function VerifyForm({ redirectUrl, email, mode = "signup" }: {
     },
   });
 
+  // this is the function that will be used to handle the otp change in the input field. It will remove all non-numeric characters and limit the length to 6 characters.
   const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (...event: any[]) => void) => {
     const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
     onChange(value);
@@ -54,7 +55,7 @@ export function VerifyForm({ redirectUrl, email, mode = "signup" }: {
     setIsLoading(true);
     setError(null);
     try {
-      const endpoint = mode === "reset" ? "/api/auth/verify-reset-code" : "/api/auth/verify-email";
+      const endpoint = mode === "reset" ? "/api/auth/verify-reset-code" : "/api/auth/verify-email-code";
       
       const response = await axios.post(endpoint, {
         email: emailParam,

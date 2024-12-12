@@ -10,12 +10,12 @@ export async function GET(req: NextRequest) {
         if (!accessToken) {
             return NextResponse.json({ 
                 success: false, 
-                message: "Not authenticated" 
+                message: "Not authenticated",
             }, { status: 401 });
         }
 
         const decoded = await verifyToken(accessToken) as { userId: string };
-        
+        console.log(decoded, "decoded");
         await dbConnect();
         const user = await UserModel.findById(decoded.userId);
 

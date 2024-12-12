@@ -1,8 +1,8 @@
 import UserModel from "@/database/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/database/dbConnect";
-import jwt from 'jsonwebtoken';
 import { hashPassword } from "@/lib/bscript";
+import { verifyResetToken } from "@/lib/jwt";
 
 export async function POST(req: NextRequest) {
     try {
@@ -17,7 +17,9 @@ export async function POST(req: NextRequest) {
 
         // Verify token
         try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+            const decoded = verifyResetToken(token) as { userId: string };
+            console.log(decoded, "decoded");
+            console.log(token, "token");
             if (!decoded.userId) {
                 return NextResponse.json({
                     success: false,

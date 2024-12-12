@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
             }, { status: 400 });
         }
 
-        const accessToken = generateToken({ userId: user._id }, '1h');
+        const accessToken = generateToken({ userId: user._id });
         const refreshToken = generateRefreshToken({ userId: user._id });
         console.log("Tokens generated:", { accessToken: !!accessToken, refreshToken: !!refreshToken });
 
