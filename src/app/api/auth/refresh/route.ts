@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Generate new access token
-        const accessToken = generateToken({ userId: user._id }, '1h');
+        const accessToken = generateToken({ userId: user._id });
 
         // Create response with new access token
         const response = NextResponse.json({ 

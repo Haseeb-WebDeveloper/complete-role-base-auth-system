@@ -5,6 +5,7 @@ import dbConnect from "@/database/dbConnect";
 
 export async function GET(req: NextRequest) {
     try {
+        // get the access token from the cookies.
         const accessToken = req.cookies.get('accessToken')?.value;
 
         if (!accessToken) {
@@ -14,9 +15,12 @@ export async function GET(req: NextRequest) {
             }, { status: 401 });
         }
 
+        // get the userId from the access token as at the time of generating the access token we store the userId in the access token.
         const decoded = await verifyToken(accessToken) as { userId: string };
-        console.log(decoded, "decoded");
+
         await dbConnect();
+
+        // find the user in the database using the userId from the access token.
         const user = await UserModel.findById(decoded.userId);
 
         if (!user) {

@@ -1,0 +1,195 @@
+Authentication System File Structure & Flow
+=========================================
+
+1. Authentication Pages (Client-Side)
+------------------------------------
+src/app/(auth)/login/page.tsx
+- Handles user login
+- Sends credentials to /api/auth/login
+- Sets access and refresh tokens on successful login
+- Redirects to dashboard or requested page
+
+src/app/(auth)/signup/page.tsx
+- Handles new user registration
+- Sends user data to /api/auth/signup
+- Redirects to email verification page
+- Implements form validation
+
+src/app/(auth)/forget-password/page.tsx
+- Handles password reset requests
+- Sends email to /api/auth/forget-password
+- Shows success message when reset email is sent
+- Implements email validation
+
+src/app/(auth)/reset-password/page.tsx
+- Handles password reset with token
+- Validates reset token from email
+- Sends new password to /api/auth/reset-password
+- Redirects to login on success
+
+2. API Routes (Server-Side)
+--------------------------
+src/app/api/auth/refresh/route.ts
+- Handles access token refresh
+- Validates refresh token from cookies
+- Generates new access token
+- Updates cookies with new tokens
+- Used by middleware for automatic token refresh
+
+src/app/api/auth/me/route.ts
+- Returns current user information
+- Validates access token
+- Used for session validation
+- Used by auth context to maintain user state
+- Protected by middleware
+
+src/app/api/protected/route.ts
+- Example of protected API route
+- Requires valid access token
+- Shows how to implement route protection
+- Used as template for other protected routes
+
++ Protected Routes System (src/app/api/protected/route.ts)
++ ------------------------------------------------
++ Purpose:
++ - Serves as a blueprint for creating secure API endpoints
++ - Demonstrates proper implementation of route protection
++ - Shows how to handle authenticated requests
++ - Provides example of user-specific data access
++ 
++ Security Layers:
++ 1. Middleware Protection
++    - Route is automatically protected by middleware
++    - Access token is validated before reaching the route
++    - Unauthorized requests are rejected early
++ 
++ 2. Token Validation
++    - Double-checks access token validity
++    - Extracts user information from token
++    - Ensures token hasn't been tampered with
++ 
++ 3. User Authorization
++    - Verifies user has necessary permissions
++    - Can implement role-based access control
++    - Handles different user privilege levels
++ 
++ Implementation Flow:
++ 1. Request Arrives
++    - Middleware validates access token
++    - Request includes HTTP-only cookies
++    - Headers are checked for authentication
++ 
++ 2. Route Handler
++    - Extracts user ID from token
++    - Validates user permissions
++    - Processes the authenticated request
++    - Returns protected data
++ 
++ 3. Error Handling
++    - Invalid token responses
++    - Permission denied cases
++    - Expired session handling
++    - Proper error status codes
++ 
++ Usage Example:
++ ```typescript
++ // Protected route implementation
++ export async function GET(req: NextRequest) {
++     try {
++         // Access token is already validated by middleware
++         const accessToken = req.cookies.get('accessToken')?.value;
++         const decoded = await verifyToken(accessToken) as { userId: string };
++ 
++         // Get user-specific data
++         const user = await UserModel.findById(decoded.userId);
++ 
++         // Return protected data
++         return NextResponse.json({
++             success: true,
++             data: "This is protected data",
++             user: user.name
++         });
++     } catch (error) {
++         return NextResponse.json({ 
++             success: false, 
++             message: "Unauthorized access"
++         }, { status: 401 });
++     }
++ }
++ ```
++ 
++ Common Use Cases:
++ 1. User Profile Data
++    - Personal information
++    - Account settings
++    - User preferences
++ 
++ 2. Protected Resources
++    - Private API endpoints
++    - Sensitive data access
++    - User-specific operations
++ 
++ 3. Administrative Functions
++    - User management
++    - System settings
++    - Analytics data
++ 
++ Integration Points:
++ - Works with auth-context for client-side auth
++ - Integrates with middleware for protection
++ - Connects with database for user data
++ - Handles token management system
+
+3. Middleware (Server-Side Protection)
+------------------------------------
+src/middleware.ts
+Key Functions:
+1. Route Protection
+   - Checks if route requires authentication
+   - Redirects unauthenticated users to login
+   - Allows public routes without auth
+
+2. Token Management
+   - Validates access tokens
+   - Handles token refresh flow
+   - Manages cookie updates
+
+3. Navigation Control
+   - Redirects authenticated users from public routes
+   - Maintains user session
+   - Handles auth state across app
+
+Authentication Flow
+------------------
+1. Initial Login:
+   Login Page -> API Login Route -> Set Tokens -> Redirect to Dashboard
+
+2. Session Management:
+   Middleware -> Check Token -> Valid? Continue : Try Refresh -> Still Invalid? -> Login
+
+3. Token Refresh Flow:
+   Middleware -> Expired Token -> Refresh Route -> New Token -> Continue Request
+
+4. Protected Routes:
+   Request -> Middleware -> Token Check -> Allow/Deny -> Route Handler
+
+5. Password Reset:
+   Forget Password -> Email Link -> Reset Page -> Update Password -> Login
+
+Key Security Features
+--------------------
+1. HTTP-Only Cookies for tokens
+2. Automatic token refresh
+3. Protected route middleware
+4. Server-side validation
+5. Secure password reset flow
+6. Role-based access control
+7. Email verification system
+
+Dashboard Integration
+--------------------
+src/app/dashboard/page.tsx
+- Protected by middleware
+- Requires valid session
+- Shows user-specific data
+- Example of protected content

@@ -1,12 +1,7 @@
-// Explanation:
-// This is the context that will be used to get the user and the logout function
-// It will be used in the navbar component to display the user's name and the logout button
-// It will also be used in the login and register pages to check if the user is logged in
-// It will be used in the dashboard page to check if the user is logged in  
-
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
 
 interface User {
     id: string;
@@ -35,14 +30,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const checkAuth = async () => {
         try {
             console.log("Checking authentication...");
-            const response = await fetch('/api/auth/me', {
-                credentials: 'include'
+            // send a request to the /api/auth/me route to check if the user is logged in.
+            const response = await axios.get('/api/auth/me', {
+                withCredentials: true // withCredentials is used to send the cookies to the server. it will send the access token and the refresh token to the server.
             });
             console.log("Auth check response:", response.status);
             
-            if (response.ok) {
-                const data = await response.json();
-                console.log("Auth data:", data);
+            if (response.status === 200) {
+                const data = response.data;
+                console.log("Auth data:", data, response);
                 setUser(data.user);
             } else {
                 console.log("Not authenticated");
